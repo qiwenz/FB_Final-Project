@@ -35,10 +35,10 @@
 		$("#reset").click(function() {
 			$.fn.reset("question", "submit");
 		});
-		$("#submit button").click(function() {
-			$.fn.submit("question", $(this).attr("name"));
+		$("#submit").click(function() {
+			$.fn.submit("question");
 		});
-		$("#link button").click(function(){
+		$("#link button").click(function() {
 			$("#display").modal("show");
 		});
 	});
@@ -62,9 +62,6 @@
 						<input type="text" class="form-control"
 							placeholder="Please enter your question here">
 					</div>
-					<div id="reset" class="form-group col-md-1" align="left">
-						<button type="button" class="btn btn-default">&nbsp;&nbsp;Reset&nbsp;&nbsp;</button>
-					</div>
 				</form>
 			</div>
 		</div>
@@ -76,19 +73,12 @@
 		</div>
 		<div id="bottom" class="row" align="center">
 			<div class="col-md-12" align="center">
-				<div id="submit">
-					<button name="1" type="button" class="btn btn-success btn-md"
-						disabled="disabled" data-toggle="modal" data-target="#display">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best
-						Answer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+				<button id="submit" type="button" class="btn btn-success btn-md"
+					disabled="disabled" data-toggle="modal" data-target="#display">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I
+					Want Answer!!!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
 
-					<button name="5" type="button" class="btn btn-info btn-md"
-						disabled="disabled" data-toggle="modal" data-target="#display">&nbsp;&nbsp;&nbsp;Best
-						5 Answers&nbsp;&nbsp;&nbsp;</button>
-
-					<button name="10" type="button" class="btn btn-warning btn-md"
-						disabled="disabled" data-toggle="modal" data-target="#display">&nbsp;Best
-						10 Answers&nbsp;</button>
-				</div>
+				<button type="button" class="btn btn-default">&nbsp;&nbsp;Clear
+					My Question&nbsp;&nbsp;</button>
 			</div>
 		</div>
 

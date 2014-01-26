@@ -1,10 +1,9 @@
 (function($) {
 	$.fn.check_q = function(question, button) {
 		if ($("#" + question + " input").val().length <= 0) {
-			$("#" + button + " button").attr("disabled", "disabled");
+			$("#" + button).attr("disabled", "disabled");
 		} else {
-			if ($("#" + button + " button").attr("name").length > 0)
-				$("#" + button + " button").removeAttr("disabled");
+			$("#" + button).removeAttr("disabled");
 		}
 	};
 })(jQuery);
@@ -34,24 +33,31 @@
 
 (function($) {
 	$.fn.highlight = function(str, indices) {
-		var last = indices[indices.length - 1];
-		var key = last["key"];
-		
+		var res = "";
+
+		var key = indices["key"];
 		//sort the index
-		var indice = last["value"];
-		//console.log(indice);
+		var indice = indices["value"];
+
 		indice.sort(function(a,b){return a-b;});
-		
-		var res = str.substring(0, indice[0]);
-		startIndex = 0;
+			
+		res = str.substring(0, indice[0]);
+		var startIndex = 0;
+			
 		if(res.length <= 0){
 			res = str.substring(0, key.length);
 			startIndex = 1;
+				
+			if(indice.length == 1)
+				return "<code>" + res + "</code>" + str.substring(key.length, str.length);
+			if(indice.length == 2)
+				return "<code>" + res + "</code>" + str.substring(key.length, indice[1]) + "<code>" + res + "</code>";
 		}
+				
 		for(var i = startIndex; i < indice.length - 1; i++){
-			res = res + "<code>" + str.substring(indice[i], indice[i] + key.length) + "</code>" + str.substring(indice[i] + key.length, indice[i + 1]);
+			res = res + "<code>" + key + "</code>" + str.substring(indice[i] + key.length, indice[i + 1]);
 		}
-		
+		res = res + "<code>" + key + "</code>" + str.substring(indice[indice.length - 1] + key.length, str.length);		
 		return res;
 	};
 })(jQuery);
@@ -60,19 +66,16 @@
 	var panel_head = "<div class='panel-heading'><h4 class='panel-title'></h4></div>";
 	var button_close;
 	var button_more;
-	$.fn.submit = function(question, answer_num) {
+	$.fn.submit = function(question) {
 		var content = $("#" + question + " input").val();
 		var params = {
-			query : content,
-			num : answer_num
+			query : content
 		};
-		
-		var words = content.split(" ");
 
 		$.post("./RequestHandler", params, function(data) {
 			//console.log(data);			
 			if (data.length == 0) {
-				$("#results").html("<h4><p class='text-danger'>Sorry, but PubMed Search has no results!></p></h4>");
+				$("#results").html("<h4><p class='text-danger'>Sorry, but PubMed Search has no results!</p></h4>");
 				button_more = "<button type='button' class='btn btn-primary' data-dismiss='modal'>Change Question</button>";
 				$("#display .modal-footer").html(button_more);
 				
@@ -80,25 +83,20 @@
 			} else {
 				var panel;
 				$("#results").html("");
-				$.each(data,function(index, value){
+				sens = data["sentences"];
+				var words = data["terms"];
+				$.each(sens,function(index, value){
 					var body = value["abs"];
-					var indices = new Array();
 					
+					var res = body;
 					for(var i in words){
 						var word = words[i];
 						var pattern = {key:"", value:""};
 						pattern.key = word.trim();
-						pattern.value = $.fn.getIndicesOf(word.trim(), body ,false);
-						indices.push(pattern);
+						pattern.value = $.fn.getIndicesOf(word.trim(), res ,false);
+						
+						res = $.fn.highlight(res, pattern);
 					}
-					if(words.length > 1){
-						var end = {key:"", value:""};
-						end.key = content.trim();
-						end.value = $.fn.getIndicesOf(content.trim(), body ,false);
-						indices.push(end);
-					}
-					
-					var para = $.fn.highlight(body, indices);
 					
 					panel = "<div " + "id='res_" + index  + "' class='panel panel-default'></div>";
 					$("#results").append(panel);
@@ -108,19 +106,16 @@
 					
 					$("#res_" + index + " a").html("PubMed ID:" + value["pmid"]);
 					 
-					var collapse;
-					//collapse = "<div id='collapse_0' class='panel-collapse collapse in'><div class='panel-body'></div></div>";						 
+					var collapse;						 
 					collapse = "<div id='collapse_" + index + "' class='panel-collapse collapse'><div class='panel-body'></div></div>";
 					 
 					$("#res_" + index).append(collapse);
-					$("#res_" + index + " .panel-body").html(para);
+					$("#res_" + index + " .panel-body").html("<p>" + res + "</p>");
 				 });
 				 button_close = "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>";
 				 button_more = "<button type='button' class='btn btn-primary'>More Answers</button>";
 				 $("#display .modal-footer").html("");
-				 $("#display .modal-footer").append(button_close);
-				 $("#display .modal-footer").append(button_more);
-				 
+				 $("#display .modal-footer").append(button_close);			 
 				 $("#link button").removeAttr("disabled");
 			}
 		});
